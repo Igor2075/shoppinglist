@@ -1,8 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const ItemName = require("../models/itemModel");
+const User = require("../models/userModel");
 
 const getItems = asyncHandler(async (req, res) => {
-    const items = await ItemName.find();
+    const items = await ItemName.find({ user: req.user.id });
 
     res.status(200).json(items);
 });
@@ -16,6 +17,7 @@ const postItem = asyncHandler(async (req, res) => {
     const item = await ItemName.create({
         itemName: req.body.itemName,
         quantity: req.body.quantity,
+        user: req.user.id,
     });
 
     res.status(201).json(item);
@@ -33,6 +35,17 @@ const updateItem = asyncHandler(async (req, res) => {
         quantity: req.body.quantity,
     };
 
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+        res.status(401);
+        throw new Error("User not found");
+    }
+
+    if (item.user.toString() !== user.id) {
+        res.status(401);
+        throw new Error("Not authorized");
+    }
     const updatedItem = await ItemName.findByIdAndUpdate(req.params.id, updates, { new: true });
     res.status(200).json(updatedItem);
 });
@@ -42,6 +55,18 @@ const deleteItem = asyncHandler(async (req, res) => {
     if (!item) {
         res.status(400);
         throw new Error("Item not found");
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+        res.status(401);
+        throw new Error("User not found");
+    }
+
+    if (item.user.toString() !== user.id) {
+        res.status(401);
+        throw new Error("Not authorized");
     }
 
     await item.remove();
