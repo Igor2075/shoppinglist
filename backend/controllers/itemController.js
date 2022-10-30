@@ -35,14 +35,12 @@ const updateItem = asyncHandler(async (req, res) => {
         quantity: req.body.quantity,
     };
 
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
+    if (!req.user) {
         res.status(401);
         throw new Error("User not found");
     }
 
-    if (item.user.toString() !== user.id) {
+    if (item.user.toString() !== req.user.id) {
         res.status(401);
         throw new Error("Not authorized");
     }
@@ -57,14 +55,12 @@ const deleteItem = asyncHandler(async (req, res) => {
         throw new Error("Item not found");
     }
 
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
+    if (!req.user) {
         res.status(401);
         throw new Error("User not found");
     }
 
-    if (item.user.toString() !== user.id) {
+    if (item.user.toString() !== req.user.id) {
         res.status(401);
         throw new Error("Not authorized");
     }
