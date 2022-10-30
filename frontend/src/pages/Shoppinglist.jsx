@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import ItemForm from "../component/ItemForm";
@@ -15,7 +15,7 @@ function Shoppinglist() {
 
     useEffect(() => {
         if (isError) {
-            console.log(message);
+            //console.log(message);
             navigate("/login");
         }
         if (!user) {

@@ -18,6 +18,24 @@ export const createItem = createAsyncThunk("items/create", async (itemData, thun
     }
 });
 
+export const updateItem = createAsyncThunk("items/update", async (itemData, thunkAPI) => {
+    const { id, itemName, quantity } = itemData;
+
+    try {
+        console.log("update token before ");
+        const token = thunkAPI.getState().auth.user.token;
+        var reqData = {
+            itemName,
+            quantity,
+        };
+        return await itemService.updateItem(id, reqData, token);
+    } catch (error) {
+        console.log("update item catch error " + JSON.stringify(error));
+        const message = (error.response && error.response.data && error.response.data.error) || error.message || error.toString();
+        return thunkAPI.rejectWithValue(message);
+    }
+});
+
 export const deleteItem = createAsyncThunk("items/delete", async (id, thunkAPI) => {
     try {
         const token = thunkAPI.getState().auth.user.token;
@@ -81,6 +99,21 @@ export const itemSlice = createSlice({
                 state.items = state.items.filter((item) => item._id !== action.payload.id);
             })
             .addCase(deleteItem.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.message = action.payload;
+            })
+            .addCase(updateItem.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(updateItem.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.items = state.items.map(function(item) {
+                    return item._id === action.payload._id ? action.payload : item;
+                });
+            })
+            .addCase(updateItem.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
                 state.message = action.payload;
