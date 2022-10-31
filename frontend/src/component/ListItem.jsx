@@ -1,7 +1,9 @@
 import { useDispatch } from "react-redux";
+import { FaRegCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { deleteItem, updateItem } from "../features/items/itemSlice";
 import React, { useState } from "react";
 import _ from "lodash";
+import { IconContext } from "react-icons";
 
 const inputValue = (e) => e.target.value;
 
@@ -16,6 +18,11 @@ function ListItem({ listItem }) {
     const [isEditingQuantity, setisEditingQuantity] = useState(false);
     const [newQuantity, setNewQuantity] = useState(quantity);
     const [newItemName, setNewItemName] = useState(itemName);
+    const [isOrdered, setIsOrdered] = useState(false);
+
+    const toggleOrdered = () => {
+        setIsOrdered(!isOrdered);
+    };
 
     const onEditEnd = () => {
         setisEditingItem(false);
@@ -30,7 +37,12 @@ function ListItem({ listItem }) {
         // setNewQuantity(quantity);
     };
     return (
-        <div className="goal">
+        <div className={isOrdered ? "goal ordered" : "goal"}>
+            <IconContext.Provider value={{ className: "react-icons" }}>
+                <button onClick={toggleOrdered} className="order">
+                    <FaRegCheckCircle />
+                </button>
+            </IconContext.Provider>
             {isEditingItem ? (
                 <input
                     value={newItemName}
@@ -71,9 +83,11 @@ function ListItem({ listItem }) {
                     Quantity: {newQuantity}
                 </div>
             )}
-            <button onClick={() => dispatch(deleteItem(_id))} className="close">
-                X
-            </button>
+            <IconContext.Provider value={{ className: "react-icons" }}>
+                <button onClick={() => dispatch(deleteItem(_id))} className="close">
+                    <FaTimesCircle />
+                </button>
+            </IconContext.Provider>
         </div>
     );
 }
